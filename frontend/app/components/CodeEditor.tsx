@@ -17,7 +17,7 @@ export default function CodeEditor({ problemId, onSubmit }: CodeEditorProps) {
     const [code, setCode] = useState(`public static void main(String[] args) {\n\t// Your code here \n}`)
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [userId, setUserId] = useState<number | null>(null)
-    let router = useRouter()
+    const router = useRouter()
 
 
     useEffect(() => {

@@ -34,11 +34,10 @@ const Leaderboard = forwardRef<LeaderboardHandle, LeaderboardProps>(
 
         useEffect(() => {
             fetchLeaderboard()
-
             // Auto-refresh every 30 seconds
             const interval = setInterval(fetchLeaderboard, 30000)
             return () => clearInterval(interval)
-        }, [contestId])
+        }, [contestId, fetchLeaderboard])
 
         useEffect(() => {
             fetchLeaderboard()
