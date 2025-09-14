@@ -45,9 +45,17 @@ this is a spring-boot/nextjs based online code judge
 
 - probably the most interesting aspect of the app is the way it uses docker and docker-in-docker to get the code results
 - firstly, we have the `docker-compose.yml` which does the following:
-  - 
-
-
+  - starts the backend and frontend services using their respective dockerfiles
+  - exposes the necessary environment variables
+  - mounts the necessary file systems for visibility
+    - to make docker-in-docker work, we mount shared filesystems from docker compose
+    - these shared volumes are also used by the cleanup service 
+  - ensures a judge image is built and available
+  - starts a cleanup service
+- the back and front ends have their own respective dockerfiles
+  - since we're going to run docker-in-docker, we ensure docker cli is installed in backend dockerfile
+- the `judge.Dockerfile` image in root dir is already built before spring-boot starts
+- this is used by the judge backend in a `ProcessBuilder`
 
 ### more about the application
 
