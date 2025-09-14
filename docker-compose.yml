@@ -1,0 +1,48 @@
+services:
+  # Build the judge environment image
+  judge-env:
+    build:
+      context: . # Current directory (project root)
+      dockerfile: judge.Dockerfile # Uses judge.Dockerfile from root
+    image: contest-judge-env:latest
+    command: echo "Judge environment ready"
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    depends_on:
+      - judge-env # Ensures judge image is built first      
+    container_name: judge-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=default
+      - JUDGE_CONTAINER_DIR=/judge
+      - JUDGE_HOST_DIR=${PWD}/judge-workdir # Absolute path on host
+      - DOCKER_BUILD_ENABLED=false
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./judge-workdir:/judge # mapped inside backend container
+      - ./judge-workdir:/workdir # mapped directly for host docker daemon
+    restart: always
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: judge-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:8080/api
+    restart: always
+
+  # Cleanup service
+  cleanup:
+    image: alpine:latest
+    container_name: judge-cleanup
+    volumes:
+      - ./judge-workdir:/judge-workdir
+    command: sh -c "trap 'rm -rf judge-workdir' EXIT; tail -f /dev/null"
+    restart: "no"
